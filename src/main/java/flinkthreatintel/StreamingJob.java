@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StreamingJob {
-    private  static final String THREAT_INTEL = "http://192.168.86.38:3000/ff/FEATURE/DOMAIN";
+    private  static final String THREAT_INTEL = "http://127.0.0.1:3000/ff/FEATURE/DOMAIN";
 
     public static void main(String[] args) throws Exception {
 
