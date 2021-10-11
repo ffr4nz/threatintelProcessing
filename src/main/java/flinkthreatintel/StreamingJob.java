@@ -1,14 +1,14 @@
 package flinkthreatintel;
 
 
+import flinkthreatintel.features.AllFeatures;
+import flinkthreatintel.features.GetFeature;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.util.Collector;
-
 
 
 import java.util.HashMap;

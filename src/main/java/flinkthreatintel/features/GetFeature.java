@@ -1,4 +1,4 @@
-package flinkthreatintel;
+package flinkthreatintel.features;
 
 import flinkthreatintel.features.ThreatIntelFeature;
 import flinkthreatintel.utils.ConfigProperties;

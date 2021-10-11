@@ -1,4 +1,4 @@
-package flinkthreatintel;
+package flinkthreatintel.features;
 
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
