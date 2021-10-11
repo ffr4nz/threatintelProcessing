@@ -1,5 +1,6 @@
 package flinkthreatintel;
 
+import flinkthreatintel.utils.ConfigProperties;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.util.Collector;
@@ -15,7 +16,8 @@ public class MongoDB extends RichFlatMapFunction<Tuple2<String, HashMap>, Tuple2
 
     @Override
     public void flatMap(Tuple2<String, HashMap> domainHashMap, Collector<Tuple2<String, HashMap>> collector) throws Exception {
-        ConnectionString connectionString = new ConnectionString("mongodb://usereoi:pcNjYKsiOuWe7XMS@clusterf-shard-00-00.2sems.mongodb.net:27017,clusterf-shard-00-01.2sems.mongodb.net:27017,clusterf-shard-00-02.2sems.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=ClusterF-shard-0&authSource=admin&retryWrites=true&w=majority");
+        String connString = ConfigProperties.getProp("connection_uri");
+        ConnectionString connectionString = new ConnectionString(connString);
         MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
                 .build();
