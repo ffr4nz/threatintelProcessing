@@ -3,6 +3,9 @@ package flinkthreatintel;
 
 import flinkthreatintel.features.AllFeatures;
 import flinkthreatintel.features.GetFeature;
+import flinkthreatintel.sink.InsertMongoDB;
+import flinkthreatintel.transform.DuplicateFilter;
+import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -34,7 +37,11 @@ public class StreamingJob {
             }
         });
 
-        DataStream<Tuple2<String, HashMap>> mongodb = domainHashMapStream.flatMap(new MongoDB());
+        // Filter duplicated domains
+        DataStream<Tuple2<String, HashMap>> checkduplicates = domainHashMapStream.filter(new DuplicateFilter("born","status","domainStatus"));
+
+        // Create domain status
+        DataStream<Tuple2<String, HashMap>> mongodb = checkduplicates.flatMap(new InsertMongoDB("born","status","domainStatus"));
 
         mongodb.print();
 
