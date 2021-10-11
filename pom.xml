@@ -116,7 +116,12 @@ under the License.
 			<artifactId>flink-connector-rabbitmq_2.11</artifactId>
 			<version>1.15-SNAPSHOT</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver</artifactId>
+            <version>3.12.10</version>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>

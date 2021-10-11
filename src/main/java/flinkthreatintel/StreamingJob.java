@@ -1,22 +1,17 @@
 package flinkthreatintel;
 
-import flinkthreatintel.features.ThreatIntelFeature;
 
-import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
-import twitter4j.JSONException;
-import twitter4j.JSONObject;
 
-import java.util.ArrayList;
+
+
 import java.util.HashMap;
-import java.util.Map;
 
 public class StreamingJob {
 
@@ -38,6 +33,10 @@ public class StreamingJob {
                 return new Tuple2<String,HashMap>(s, new HashMap());
             }
         });
+
+        DataStream<Tuple2<String, HashMap>> mongodb = domainHashMapStream.flatMap(new MongoDB());
+
+        mongodb.print();
 
         // Features
         DataStream<Tuple2<String, HashMap>> ddns = domainHashMapStream.flatMap(new GetFeature("ddns"));

@@ -60,5 +60,8 @@
     <orderEntry type="library" name="Maven: org.apache.flink:flink-connector-rabbitmq_2.11:1.15-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: com.rabbitmq:amqp-client:5.9.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.flink:flink-shaded-force-shading:14.0" level="project" />
+    <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver:3.12.10" level="project" />
+    <orderEntry type="library" name="Maven: org.mongodb:bson:3.12.10" level="project" />
+    <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver-core:3.12.10" level="project" />
   </component>
 </module>
