@@ -27,6 +27,7 @@ public class DuplicateFilter implements FilterFunction<Tuple2<String, HashMap>> 
 
     @Override
     public boolean filter(Tuple2<String, HashMap> domainHashMap) throws Exception {
+
         String connString = ConfigProperties.getProp("connection_uri");
         ConnectionString connectionString = new ConnectionString(connString);
         MongoClientSettings settings = MongoClientSettings.builder()
@@ -36,13 +37,14 @@ public class DuplicateFilter implements FilterFunction<Tuple2<String, HashMap>> 
         MongoDatabase database = mongoClient.getDatabase(Database);
         Document document = new Document();
         document.append("domain", domainHashMap.f0);
-        document.append("status", Status);
+        //document.append("status", Status);
         FindIterable<Document> documents = database.getCollection(Collection).find(document);
         Integer documentCount = 0;
         for (Document d : documents) {
             documentCount = documentCount +1;
             break;
         }
+        mongoClient.close();
         if (documentCount > 0){
             // Duplicated domain. Stop stream.
             return false;

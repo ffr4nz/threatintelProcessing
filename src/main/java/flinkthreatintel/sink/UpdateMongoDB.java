@@ -6,6 +6,8 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
 import flinkthreatintel.utils.ConfigProperties;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -38,6 +40,10 @@ public class UpdateMongoDB extends RichFlatMapFunction<Tuple2<String, HashMap>, 
         Document document = new Document();
         document.append("domain", domainHashMap.f0);
         document.append("status", Status);
-        database.getCollection(Collection).updateOne(Filters.eq("domain", domainHashMap.f0),document);
+        database.getCollection(Collection).updateOne(
+                Filters.eq("domain", domainHashMap.f0),
+                new Document("$set", document),
+                new UpdateOptions().upsert(true));
+        mongoClient.close();
     }
 }

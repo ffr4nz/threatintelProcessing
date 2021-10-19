@@ -33,6 +33,7 @@ public class GetFeature extends RichFlatMapFunction<Tuple2<String, HashMap>, Tup
         HashMap<String,String> hashMapResult;
         hashMapResult = (HashMap<String,String>) domainHashMap.f1;
         hashMapResult.put(featureName,result);
+        System.out.println(result);
         collector.collect(new Tuple2<>(domainHashMap.f0, hashMapResult));
     }
 }

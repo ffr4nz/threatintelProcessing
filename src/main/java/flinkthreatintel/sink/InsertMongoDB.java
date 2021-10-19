@@ -37,5 +37,6 @@ public class InsertMongoDB extends RichFlatMapFunction<Tuple2<String, HashMap>, 
         document.append("domain", domainHashMap.f0);
         document.append("status", Status);
         database.getCollection(Collection).insertOne(document);
+        mongoClient.close();
     }
 }

@@ -4,6 +4,7 @@ package flinkthreatintel;
 import flinkthreatintel.features.AllFeatures;
 import flinkthreatintel.features.GetFeature;
 import flinkthreatintel.sink.InsertMongoDB;
+import flinkthreatintel.sink.UpdateMongoDB;
 import flinkthreatintel.transform.DuplicateFilter;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -12,6 +13,8 @@ import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import twitter4j.JSONArray;
+import twitter4j.JSONObject;
 
 
 import java.util.HashMap;
@@ -22,9 +25,10 @@ public class StreamingJob {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        env.setParallelism(3);
+        env.setParallelism(20);
 
-        // DataStream source testing. SocketTextStream
+
+        // DataStream source testing. SocketTextStream. NEW DOMAINS
         DataStream<String> domainStream = env.socketTextStream("localhost", 10000);
         // DataStream source production. RMQSource
 
@@ -38,15 +42,27 @@ public class StreamingJob {
         });
 
         // Filter duplicated domains
-        DataStream<Tuple2<String, HashMap>> checkduplicates = domainHashMapStream.filter(new DuplicateFilter("born","status","domainStatus"));
+        DataStream<Tuple2<String, HashMap>> checkduplicates =
+                domainHashMapStream.filter(new DuplicateFilter("born","status","domainStatus"));
 
-        // Create domain status
-        DataStream<Tuple2<String, HashMap>> mongodb = checkduplicates.flatMap(new InsertMongoDB("born","status","domainStatus"));
+        // SINK: Create domain status
+        checkduplicates.flatMap(new InsertMongoDB("born","status","domainStatus"));
 
-        mongodb.print();
+        // Check if domain is alive
+        DataStream<Tuple2<String, HashMap>> ips = checkduplicates.flatMap(new GetFeature("numberips"));
+
+        ips.filter(new FilterFunction<Tuple2<String, HashMap>>() {
+            @Override
+            public boolean filter(Tuple2<String, HashMap> stringHashMapTuple2) throws Exception {
+                String jsonString = stringHashMapTuple2.f1.get("numberips").toString();
+                JSONObject obj = new JSONObject(jsonString);
+                int jresult = obj.getInt("result");
+                return jresult == 1;
+            }
+        }).flatMap(new UpdateMongoDB("alive","status","domainStatus"));;
 
         // Features
-        DataStream<Tuple2<String, HashMap>> ddns = domainHashMapStream.flatMap(new GetFeature("ddns"));
+        DataStream<Tuple2<String, HashMap>> ddns = ips.flatMap(new GetFeature("ddns"));
         DataStream<Tuple2<String, HashMap>> idnhattack = ddns.flatMap(new GetFeature("idnhattack"));
         DataStream<Tuple2<String, HashMap>> favicon = idnhattack.flatMap(new GetFeature("favicon"));
         DataStream<Tuple2<String, HashMap>> strcomparison = favicon.flatMap(new GetFeature("strcomparison"));
@@ -69,8 +85,12 @@ public class StreamingJob {
         DataStream<Tuple2<String, HashMap>> vowels = entropy.flatMap(new GetFeature("vowels"));
         DataStream<Tuple2<String, HashMap>> consonants = vowels.flatMap(new GetFeature("consonants"));
         DataStream<Tuple2<String, HashMap>> length = consonants.flatMap(new GetFeature("length"));
-        DataStream<Tuple3<String,String, String>> features = length.flatMap(new AllFeatures());
+
+        // Getting all features together to be used on a model
+        DataStream<Tuple3<String, String, String>> features = length.flatMap(new AllFeatures());
         features.print();
+        features.writeAsText("baddomains.csv");
+
         // Execute Flow
         env.execute("ThreatIntel");
     }
